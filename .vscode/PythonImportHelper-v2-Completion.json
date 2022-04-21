@@ -1,0 +1,437 @@
+[
+    {
+        "label": "sleep",
+        "importPath": "time",
+        "description": "time",
+        "isExtraImport": true,
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "metrics",
+        "importPath": "sklearn",
+        "description": "sklearn",
+        "isExtraImport": true,
+        "detail": "sklearn",
+        "documentation": {}
+    },
+    {
+        "label": "metrics",
+        "importPath": "sklearn",
+        "description": "sklearn",
+        "isExtraImport": true,
+        "detail": "sklearn",
+        "documentation": {}
+    },
+    {
+        "label": "confusion_matrix",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "streamlit",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "streamlit",
+        "description": "streamlit",
+        "detail": "streamlit",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "datetime",
+        "description": "datetime",
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "matplotlib.pyplot",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.pyplot",
+        "description": "matplotlib.pyplot",
+        "detail": "matplotlib.pyplot",
+        "documentation": {}
+    },
+    {
+        "label": "ParameterGrid",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "RandomizedSearchCV",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "train_test_split",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "GridSearchCV",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "train_test_split",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "seaborn",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "seaborn",
+        "description": "seaborn",
+        "detail": "seaborn",
+        "documentation": {}
+    },
+    {
+        "label": "warnings",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "warnings",
+        "description": "warnings",
+        "detail": "warnings",
+        "documentation": {}
+    },
+    {
+        "label": "SelectKBest",
+        "importPath": "sklearn.feature_selection",
+        "description": "sklearn.feature_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.feature_selection",
+        "documentation": {}
+    },
+    {
+        "label": "f_classif",
+        "importPath": "sklearn.feature_selection",
+        "description": "sklearn.feature_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.feature_selection",
+        "documentation": {}
+    },
+    {
+        "label": "RFECV",
+        "importPath": "sklearn.feature_selection",
+        "description": "sklearn.feature_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.feature_selection",
+        "documentation": {}
+    },
+    {
+        "label": "add_params_classifier",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "cleaning_dataset",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "get_classifier",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "normalize",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "put_dataset",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "solve",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "user_input_features",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "get_grid_rf",
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "isExtraImport": true,
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "PCA",
+        "importPath": "sklearn.decomposition",
+        "description": "sklearn.decomposition",
+        "isExtraImport": true,
+        "detail": "sklearn.decomposition",
+        "documentation": {}
+    },
+    {
+        "label": "PCA",
+        "importPath": "sklearn.decomposition",
+        "description": "sklearn.decomposition",
+        "isExtraImport": true,
+        "detail": "sklearn.decomposition",
+        "documentation": {}
+    },
+    {
+        "label": "bootstrap",
+        "importPath": "ensurepip",
+        "description": "ensurepip",
+        "isExtraImport": true,
+        "detail": "ensurepip",
+        "documentation": {}
+    },
+    {
+        "label": "pyplot",
+        "importPath": "matplotlib",
+        "description": "matplotlib",
+        "isExtraImport": true,
+        "detail": "matplotlib",
+        "documentation": {}
+    },
+    {
+        "label": "RandomForestClassifier",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "RandomForestRegressor",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "KNeighborsClassifier",
+        "importPath": "sklearn.neighbors",
+        "description": "sklearn.neighbors",
+        "isExtraImport": true,
+        "detail": "sklearn.neighbors",
+        "documentation": {}
+    },
+    {
+        "label": "KNeighborsRegressor",
+        "importPath": "sklearn.neighbors",
+        "description": "sklearn.neighbors",
+        "isExtraImport": true,
+        "detail": "sklearn.neighbors",
+        "documentation": {}
+    },
+    {
+        "label": "StandardScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "MinMaxScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "RobustScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "SVC",
+        "importPath": "sklearn.svm",
+        "description": "sklearn.svm",
+        "isExtraImport": true,
+        "detail": "sklearn.svm",
+        "documentation": {}
+    },
+    {
+        "label": "SVR",
+        "importPath": "sklearn.svm",
+        "description": "sklearn.svm",
+        "isExtraImport": true,
+        "detail": "sklearn.svm",
+        "documentation": {}
+    },
+    {
+        "label": "TYPE_OF_PROBLEM",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "TYPE_OF_PROBLEM = ['Classification', 'Regression']\nCLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Markov Models']\nwith st.spinner(\"Loading dataset...\"):\n    st.sidebar.header('User Input Parameters')\n    X, y = put_dataset()\n    X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)\nwith st.spinner(\"Loading sidebar...\"):\n    classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)\nwith st.spinner(\"Cleaning and normalizing dataset...\"):\n    X = cleaning_dataset(X, features_to_remove)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "CLASSIFIERS",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Markov Models']\nwith st.spinner(\"Loading dataset...\"):\n    st.sidebar.header('User Input Parameters')\n    X, y = put_dataset()\n    X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)\nwith st.spinner(\"Loading sidebar...\"):\n    classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)\nwith st.spinner(\"Cleaning and normalizing dataset...\"):\n    X = cleaning_dataset(X, features_to_remove)\n    X_norm = normalize(X)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "st.sidebar.download_button(label",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')\nwith st.spinner(\"Feature engineering...\"):\n    st.header('FEATURE ENGINEERING')\n    st.subheader('The dataset: ')\n    st.dataframe(X)\n    st.subheader('Statistics about the dataset: ')\n    st.dataframe(X.describe())\n    st.write('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))\n    st.write('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))\n    st.write('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "normalize_data",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def normalize_data(df):\n    # df on input should contain only one column with the price data (plus dataframe index)\n    min = df.min()\n    max = df.max()\n    x = df \n    # time series normalization part\n    # y will be a column in a dataframe\n    y = (x - min) / (max - min)\n    return y\ndef put_dataset():",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "put_dataset",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def put_dataset():\n    uploaded_file = streamlit.file_uploader(\"Choose a file\")\n    if uploaded_file is not None:\n        # Can be used wherever a \"file-like\" object is accepted:\n        X = pd.read_csv(uploaded_file)\n    else:\n        X = pd.read_csv('./songs_full_data_processed.csv')\n    X.dropna()\n    X = X.loc[:, ~X.columns.str.contains('^Unnamed')]\n    target_variable = st.sidebar.selectbox(\"Target feature\", X.columns, index=len(X.columns)-1)",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "cleaning_dataset",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def cleaning_dataset(dataset, features_to_remove):\n    # replacing values\n    #dataset['main_genre'].replace(dataset.main_genre.unique(), range(len(dataset.main_genre.unique())), inplace=True)\n    dataset['name'].replace(dataset.name.unique(), range(len(dataset.name.unique())), inplace=True)\n    dataset['song_type'].replace(dataset.song_type.unique(), range(len(dataset.song_type.unique())), inplace=True)\n    dataset['artist_type'].replace(dataset.artist_type.unique(), range(len(dataset.artist_type.unique())), inplace=True)\n    for column in features_to_remove:\n        try:\n            dataset.drop([column], axis=1, inplace=True) \n        except:",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "user_input_features",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):\n    type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)\n    classifier_name = st.sidebar.selectbox(\"Classifier\", CLASSIFIERS, index=0)\n    columns = dataset.columns\n    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre']\n    try:\n        columns_to_remove = st.sidebar.multiselect(\"Select unnecesary features\", dataset.columns, remove)\n    except:\n        columns_to_remove = st.sidebar.multiselect(\"Select unnecesary features\", dataset.columns)\n    return classifier_name, type_problem, columns_to_remove",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "normalize",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def normalize(X):\n    df_model = X.copy()\n    scaler = StandardScaler()\n    #scaler = RobustScaler()\n    features = [X.columns]\n    for feature in features:\n        df_model[feature] = scaler.fit_transform(df_model[feature])\n    df_model = pd.get_dummies(df_model)\n    return df_model \ndef add_params_classifier(cls_name):",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "add_params_classifier",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def add_params_classifier(cls_name):\n    params = dict()\n    if cls_name == 'KNN':\n        K = st.sidebar.slider('K', 1, 25)\n        leaf_size = st.sidebar.slider('Leaf size', 1, 50)\n        params['K'] = K\n        params['leaf_size'] = leaf_size\n    elif cls_name == 'SVM':\n        C = st.sidebar.slider('C', 0.01, 10.00)\n        params['C'] = C",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "get_classifier",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def get_classifier(cls_name, params, type_of_problem):\n    if type_of_problem == 'Classification':\n        if cls_name == 'KNN':\n            classifier = KNeighborsClassifier(n_neighbors=params['K'], leaf_size=params['leaf_size'])\n        elif cls_name == 'SVM':\n            classifier = SVC(C= params['C'])\n        elif cls_name == 'Random Forest':\n            classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=42, min_samples_leaf=params['min_samples_leaf'], min_samples_split=params['min_samples_split'], bootstrap=params['bootstrap'], \n                                                #max_features=params['max_features']\n                                                )",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "solve",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def solve(df_model,y, classifier, classifier_name):\n    #Classification\n    X_train, X_test, y_train, y_test = train_test_split(df_model, y, test_size=0.25, random_state=1234)\n    classifier.fit(X_train, y_train)\n    y_pred = classifier.predict(X_test)\n    acc = metrics.accuracy_score(y_test, y_pred)\n    st.success(f\"\"\"\n            # Classifier: {classifier_name}\n            # Accuracy: {acc}\"\"\")\n    pca = PCA(2)",
+        "detail": "bia_functions",
+        "documentation": {}
+    },
+    {
+        "label": "get_grid_rf",
+        "kind": 2,
+        "importPath": "bia_functions",
+        "description": "bia_functions",
+        "peekOfCode": "def get_grid_rf(n_estimators, max_depth, min_samples_split, min_samples_leaf, bootstrap, max_features):\n    grid_rf = {\n        'n_estimators': n_estimators,  \n        'max_depth': max_depth,  \n        #'min_samples_split': min_samples_split, \n        #'min_samples_leaf': min_samples_leaf,  \n        'bootstrap': bootstrap, \n        'random_state': [42],\n        #'max_features': max_features\n    }",
+        "detail": "bia_functions",
+        "documentation": {}
+    }
+]
