@@ -41,7 +41,7 @@ def put_dataset():
 
 def cleaning_dataset(dataset, features_to_remove):
     # replacing values
-    dataset['main_genre'].replace(dataset.main_genre.unique(), range(len(dataset.main_genre.unique())), inplace=True)
+    #dataset['main_genre'].replace(dataset.main_genre.unique(), range(len(dataset.main_genre.unique())), inplace=True)
     dataset['name'].replace(dataset.name.unique(), range(len(dataset.name.unique())), inplace=True)
     dataset['song_type'].replace(dataset.song_type.unique(), range(len(dataset.song_type.unique())), inplace=True)
     dataset['artist_type'].replace(dataset.artist_type.unique(), range(len(dataset.artist_type.unique())), inplace=True)
@@ -153,6 +153,6 @@ def get_grid_rf(n_estimators, max_depth, min_samples_split, min_samples_leaf, bo
         #'min_samples_leaf': min_samples_leaf,  
         'bootstrap': bootstrap, 
         'random_state': [42],
-        'max_features': max_features
+        #'max_features': max_features
     }
     return grid_rf

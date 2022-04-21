@@ -4,5 +4,4 @@ pandas
 matplotlib
 sklearn
 seaborn
-warnings
 streamlit

@@ -111,17 +111,17 @@ with st.spinner("Computing variance ratio..."):
     plt.ylabel('explained_variance_ratio_')
     st.write(fig)
     
-'''with st.spinner("Computing parameters grid..."):
+with st.spinner("Computing parameters grid..."):
     st.warning('This may take a while since it is computing the best set of parameters for training our model.')
      # For a random forest regression model, the best parameters to consider are:
-    n_estimators = [30, 40, 50, 70, 100] # Number of trees in the forest
-    max_depth = [11, 15, 17, 20] # Maximum depth in a tree
+    n_estimators = [20,25,30,35,40,45,50,60,70] # Number of trees in the forest
+    max_depth = [8,9,10,11,13, 15, 17, 20] # Maximum depth in a tree
     #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
     #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
     bootstrap = [True, False] # Sampling for datapoints.
     #random_state = [42] # Generated random numbers for the random forest.
-    max_features = [4,7,12,14]
-    grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, max_features)
+    #max_features = [1]
+    grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
     st.subheader('Parameters Grid:')
     test_scores = []
     for g in ParameterGrid(grid):
@@ -130,6 +130,6 @@ with st.spinner("Computing variance ratio..."):
         test_scores.append(classifier.score(X_test, y_test))
 
     best_index = np.argmax(test_scores)
-    st.write(test_scores[best_index], ParameterGrid(grid)[best_index])'''
+    st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
 
 
