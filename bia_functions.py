@@ -55,7 +55,6 @@ def cleaning_dataset(dataset, features_to_remove):
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
     type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)
     classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=0)
-    columns = dataset.columns
     remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre']
     try:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns, remove)
@@ -79,8 +78,8 @@ def normalize(X):
 def add_params_classifier(cls_name):
     params = dict()
     if cls_name == 'KNN':
-        K = st.sidebar.slider('K', 1, 25)
-        leaf_size = st.sidebar.slider('Leaf size', 1, 50)
+        K = st.sidebar.slider('K', 1, 70)
+        leaf_size = st.sidebar.slider('Leaf size', 1, 40)
         params['K'] = K
         params['leaf_size'] = leaf_size
     elif cls_name == 'SVM':
@@ -109,9 +108,7 @@ def get_classifier(cls_name, params, type_of_problem):
         elif cls_name == 'SVM':
             classifier = SVC(C= params['C'])
         elif cls_name == 'Random Forest':
-            classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=42, min_samples_leaf=params['min_samples_leaf'], min_samples_split=params['min_samples_split'], bootstrap=params['bootstrap'], 
-                                                #max_features=params['max_features']
-                                                )
+            classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=42, min_samples_leaf=params['min_samples_leaf'], min_samples_split=params['min_samples_split'], bootstrap=params['bootstrap'])
     else:
         if cls_name == 'KNN':
             classifier = KNeighborsRegressor(n_neighbors=params['K'], leaf_size=params['leaf_size'])
@@ -155,3 +152,10 @@ def get_grid_rf(n_estimators, max_depth, min_samples_split, min_samples_leaf, bo
         #'max_features': max_features
     }
     return grid_rf
+
+def get_grid_knn(k, leaf_size):
+    grid_knn = {
+        'n_neighbors': k,
+        'leaf_size': leaf_size
+    }
+    return grid_knn

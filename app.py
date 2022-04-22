@@ -1,18 +1,16 @@
 import numpy as np
 from sklearn import metrics
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, plot_confusion_matrix
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import ParameterGrid, train_test_split
+from sklearn.model_selection import ParameterGrid, train_test_split, GridSearchCV
 import seaborn as sns
 import warnings
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import f_classif
-from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, normalize, put_dataset, solve, user_input_features, get_grid_rf
+from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, normalize, put_dataset, solve, user_input_features, get_grid_rf
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
-from sklearn.feature_selection import RFECV
+from sklearn.feature_selection import RFECV, SelectKBest, f_classif
 
 TYPE_OF_PROBLEM = ['Classification', 'Regression']
 CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Markov Models']
@@ -78,19 +76,19 @@ with st.spinner("Finding bests features..."):
     plt.show()
     st.write(fig)
     
-
-with st.spinner("Finding optimal number of features and best ones..."):
-    st.subheader('Finding optimal number of features:')
-    # The "accuracy" scoring is proportional to the number of correct classifications
-    rfecv = RFECV(estimator=classifier, step=1, cv=5,scoring='accuracy')   #5-fold cross-validation
-    rfecv = rfecv.fit(X_train, y_train)
-    st.write('Optimal number of features :', rfecv.n_features_)
-    st.write('Best features :', X_train.columns[rfecv.support_])
-    fig = plt.figure()
-    plt.xlabel("Number of features selected")
-    plt.ylabel("Cross validation score of number of selected features")
-    plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
-    st.write(fig)
+if classifier_name == 'Random Forest':
+    with st.spinner("Finding optimal number of features and best ones..."):
+        st.subheader('Finding optimal number of features:')
+        # The "accuracy" scoring is proportional to the number of correct classifications
+        rfecv = RFECV(estimator=classifier, step=1, cv=5,scoring='accuracy')   #5-fold cross-validation
+        rfecv = rfecv.fit(X_train, y_train)
+        st.write('Optimal number of features :', rfecv.n_features_)
+        st.write('Best features :', X_train.columns[rfecv.support_])
+        fig = plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score of number of selected features")
+        plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+        st.write(fig)
     
 
 
@@ -108,25 +106,52 @@ with st.spinner("Computing variance ratio..."):
     plt.ylabel('explained_variance_ratio_')
     st.write(fig)
     
+    
 with st.spinner("Computing parameters grid..."):
     st.warning('This may take a while since it is computing the best set of parameters for training our model.')
-     # For a random forest regression model, the best parameters to consider are:
-    n_estimators = [20,25,30,35,40,45,50,60,70] # Number of trees in the forest
-    max_depth = [8,9,10,11,13, 15, 17, 20] # Maximum depth in a tree
-    #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
-    #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
-    bootstrap = [True, False] # Sampling for datapoints.
-    #random_state = [42] # Generated random numbers for the random forest.
-    #max_features = [1]
-    grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
-    st.subheader('Parameters Grid:')
-    test_scores = []
-    for g in ParameterGrid(grid):
-        classifier.set_params(**g) 
-        classifier.fit(X_train, y_train)
-        test_scores.append(classifier.score(X_test, y_test))
+    
+    if classifier_name == 'Random Forest':
+        
+        # For a random forest regression model, the best parameters to consider are:
+        n_estimators = [20,25,30,35,40,45,50,60,70] # Number of trees in the forest
+        max_depth = [8,9,10,11,13, 15, 17, 20] # Maximum depth in a tree
+        #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
+        #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
+        bootstrap = [True, False] # Sampling for datapoints.
+        #random_state = [42] # Generated random numbers for the random forest.
+        #max_features = [1]
+        grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
+        st.subheader('Parameters Grid:')
+        test_scores = []
+        for g in ParameterGrid(grid):
+            classifier.set_params(**g) 
+            classifier.fit(X_train, y_train)
+            test_scores.append(classifier.score(X_test, y_test))
+        best_index = np.argmax(test_scores)
+        st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+        
+    elif classifier_name == 'KNN':
+        K = range(1,70)
+        ls = range(1,40)
+        grid = get_grid_knn(K, ls)
+        
+        # defining parameter range
+        grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
+        
+        # fitting the model for grid search
+        grid_search=grid.fit(X_train, y_train)
+        
+        st.write(grid_search.best_params_)
+        accuracy = grid_search.best_score_ *100
+        print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+        knn = classifier(params=grid_search.best_params_)
+        knn.fit(X, y)
+        y_test_hat=knn.predict(X_test) 
 
-    best_index = np.argmax(test_scores)
-    st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+        test_accuracy=accuracy_score(y_test,y_test_hat)*100
+
+        print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+        plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+
 
 
