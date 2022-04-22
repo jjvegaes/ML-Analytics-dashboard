@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn import metrics
 from sklearn.metrics import accuracy_score, confusion_matrix, plot_confusion_matrix
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,6 +19,7 @@ CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Markov Models']
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
+    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=False)
     X, y = put_dataset()
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
 with st.spinner("Loading sidebar..."):
@@ -106,7 +109,7 @@ with st.spinner("Computing variance ratio..."):
     plt.ylabel('explained_variance_ratio_')
     st.write(fig)
     
-if st.button('Click here for compute brute force on hyperparameters'):
+if hyper_tuning:
     with st.spinner("Computing parameters grid..."):
         st.warning('This may take a while since it is computing the best set of parameters for training our model.')
         
@@ -131,8 +134,8 @@ if st.button('Click here for compute brute force on hyperparameters'):
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
         elif classifier_name == 'KNN':
-            K = range(1,70,15)
-            ls = range(1,40,12)
+            K = range(1,70,25)
+            ls = range(1,40,22)
             grid = get_grid_knn(K, ls)
             
             # defining parameter range
@@ -143,15 +146,17 @@ if st.button('Click here for compute brute force on hyperparameters'):
             
             st.write(grid_search.best_params_)
             accuracy = grid_search.best_score_ *100
-            print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
-            knn = classifier(params=grid_search.best_params_)
+            st.write("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            knn = KNeighborsClassifier(n_neighbors=grid_search.best_params_['n_neighbors'], leaf_size=grid_search.best_params_['leaf_size'])
             knn.fit(X, y)
             y_test_hat=knn.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
-            print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            st.write("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            fig, ax = plt.subplots()
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+            st.pyplot(fig)
             
         elif classifier_name == 'SVM':
             
@@ -168,15 +173,18 @@ if st.button('Click here for compute brute force on hyperparameters'):
             
             st.write(grid_search.best_params_)
             accuracy = grid_search.best_score_ *100
-            print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
-            svm = classifier(params=grid_search.best_params_)
+            st.write("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            svm = SVC(C=grid_search.best_params_['C'], kernel=grid_search.best_params_['kernel'], degree=grid_search.best_params_['degree'])
             svm.fit(X, y)
             y_test_hat=svm.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
-            print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            st.write("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            fig, ax = plt.subplots()
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+            st.pyplot(fig)
+            
 
 
 
