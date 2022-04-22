@@ -13,15 +13,24 @@ from bia_functions import add_params_classifier, cleaning_dataset, get_classifie
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
+from sklearn.datasets import load_boston, load_breast_cancer, load_diabetes, load_iris, load_wine
 
 TYPE_OF_PROBLEM = ['Classification', 
                    #'Regression'
                    ]
 CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree']
+DATASETS = [
+    #'Boston Houses', 
+    'breast_cancer',
+    #'Diabetes',
+    'iris',
+    'wine'
+            ]
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
     hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=True)
+    #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
     X, y = put_dataset()
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
 with st.spinner("Loading sidebar..."):
