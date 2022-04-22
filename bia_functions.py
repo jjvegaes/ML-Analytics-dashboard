@@ -1,6 +1,7 @@
 from ensurepip import bootstrap
 from matplotlib import pyplot as plt
 from sklearn import metrics
+from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
@@ -8,6 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.svm import SVC, SVR
 import pandas as pd
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 import streamlit as st
 
 
@@ -53,13 +55,13 @@ def cleaning_dataset(dataset, features_to_remove):
 
 
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
-    type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)
-    classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=0)
-    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre']
+    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre', 'mode', 'key', 'liveness', 'valence', 'tempo']
     try:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns, remove)
     except:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns)
+    classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=3)
+    type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)
     return classifier_name, type_problem, columns_to_remove
 
 
@@ -83,8 +85,14 @@ def add_params_classifier(cls_name):
         params['K'] = K
         params['leaf_size'] = leaf_size
     elif cls_name == 'SVM':
-        C = st.sidebar.slider('C', 0.01, 10.00)
+        params['degree'] = 1
+        C = st.sidebar.slider('C. Regularization parameter.', 0.01, 10.00)
+        kernel = st.sidebar.selectbox("SVM KERNEL", ['linear', 'poly', 'rbf', 'sigmoid'], index = 2)
+        if kernel == 'poly':
+            degree = st.sidebar.slider('DEGREE POLYNOMIAL KERNEL', 1, 20)
+            params['degree'] = degree
         params['C'] = C
+        params['kernel'] = kernel
     elif cls_name == 'Random Forest':
         max_depth = st.sidebar.slider('Max Depth', 2, 25)
         n_estimators = st.sidebar.slider('Number of Estimators', 1, 100)
@@ -98,6 +106,11 @@ def add_params_classifier(cls_name):
         params['min_samples_leaf'] = min_samples_leaf
         params['bootstrap'] = bootstrap
         #params['max_features'] = max_features
+    elif cls_name == 'Decision Tree':
+        max_depth = st.sidebar.slider('Max Depth', 2, 25)
+        min_samples_split = st.sidebar.slider('Minimum samples split', 2, 100)
+        params['max_depth'] = max_depth
+        params['min_samples_split'] = min_samples_split
     return params
 
 
@@ -106,9 +119,11 @@ def get_classifier(cls_name, params, type_of_problem):
         if cls_name == 'KNN':
             classifier = KNeighborsClassifier(n_neighbors=params['K'], leaf_size=params['leaf_size'])
         elif cls_name == 'SVM':
-            classifier = SVC(C= params['C'])
+            classifier = SVC(C= params['C'], kernel=params['kernel'], degree=params['degree'])
         elif cls_name == 'Random Forest':
             classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=42, min_samples_leaf=params['min_samples_leaf'], min_samples_split=params['min_samples_split'], bootstrap=params['bootstrap'])
+        elif cls_name == 'Decision Tree':
+            classifier = DecisionTreeClassifier(max_depth=params['max_depth'], min_samples_split=params['min_samples_split'])
     else:
         if cls_name == 'KNN':
             classifier = KNeighborsRegressor(n_neighbors=params['K'], leaf_size=params['leaf_size'])
@@ -116,6 +131,8 @@ def get_classifier(cls_name, params, type_of_problem):
             classifier = SVR(C= params['C'])
         elif cls_name == 'Random Forest':
             classifier = RandomForestRegressor(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=1234)
+        elif cls_name == 'Decision Tree':
+            classifier = DecisionTreeRegressor(max_depth=params['max_depth'], min_samples_split=params['min_samples_split'])
     return classifier
 
 
@@ -138,6 +155,9 @@ def solve(df_model,y, classifier, classifier_name):
     plt.ylabel('Principal component 2')
     plt.colorbar()
     st.pyplot(fig)
+    if classifier_name == 'tree':
+        #tree.plot_tree(classifier)
+        pass
     return X_train, X_test, y_train, y_test, y_pred
 
 
@@ -153,9 +173,26 @@ def get_grid_rf(n_estimators, max_depth, min_samples_split, min_samples_leaf, bo
     }
     return grid_rf
 
+
+def get_grid_tree(max_depth, min_samples_split):
+    grid = { 
+        'max_depth': max_depth,  
+        'min_samples_split': min_samples_split
+    }
+    return grid
+
+
 def get_grid_knn(k, leaf_size):
     grid_knn = {
         'n_neighbors': k,
         'leaf_size': leaf_size
     }
     return grid_knn
+
+def get_grid_svm(c, kernel, degree):
+    grid = {
+        'C': c,
+        'kernel': kernel,
+        'degree': degree
+    }
+    return grid
