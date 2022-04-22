@@ -14,7 +14,9 @@ warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
 
-TYPE_OF_PROBLEM = ['Classification', 'Regression']
+TYPE_OF_PROBLEM = ['Classification', 
+                   #'Regression'
+                   ]
 CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree']
 
 with st.spinner("Loading dataset..."):
