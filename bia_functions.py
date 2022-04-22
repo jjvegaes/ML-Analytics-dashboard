@@ -107,8 +107,8 @@ def add_params_classifier(cls_name):
         params['bootstrap'] = bootstrap
         #params['max_features'] = max_features
     elif cls_name == 'Decision Tree':
-        max_depth = st.sidebar.slider('Max Depth', 2, 50)
-        min_samples_split = st.sidebar.slider('Minimum samples split', 2, 100)
+        max_depth = st.sidebar.slider('Max Depth', 2, 60, step=2)
+        min_samples_split = st.sidebar.slider('Minimum samples split', 2, 10)
         params['max_depth'] = max_depth
         params['min_samples_split'] = min_samples_split
     return params

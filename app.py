@@ -137,7 +137,7 @@ if hyper_tuning:
             
             # For a random forest regression model, the best parameters to consider are:
             max_depth = range(3,60,3) # Maximum depth in a tree
-            min_samples_split = range(2,100,10) # Minimum number of data points before the sample is split
+            min_samples_split = range(2,10,4) # Minimum number of data points before the sample is split
             grid = get_grid_tree(max_depth, min_samples_split)
             
             st.subheader('Parameters Grid:')
