@@ -106,52 +106,75 @@ with st.spinner("Computing variance ratio..."):
     plt.ylabel('explained_variance_ratio_')
     st.write(fig)
     
-    
-with st.spinner("Computing parameters grid..."):
-    st.warning('This may take a while since it is computing the best set of parameters for training our model.')
-    
-    if classifier_name == 'Random Forest':
+if st.button('Click here for compute brute force on hyperparameters'):
+    with st.spinner("Computing parameters grid..."):
+        st.warning('This may take a while since it is computing the best set of parameters for training our model.')
         
-        # For a random forest regression model, the best parameters to consider are:
-        n_estimators = [20,25,30,35,40,45,50,60,70] # Number of trees in the forest
-        max_depth = [8,9,10,11,13, 15, 17, 20] # Maximum depth in a tree
-        #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
-        #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
-        bootstrap = [True, False] # Sampling for datapoints.
-        #random_state = [42] # Generated random numbers for the random forest.
-        #max_features = [1]
-        grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
-        st.subheader('Parameters Grid:')
-        test_scores = []
-        for g in ParameterGrid(grid):
-            classifier.set_params(**g) 
-            classifier.fit(X_train, y_train)
-            test_scores.append(classifier.score(X_test, y_test))
-        best_index = np.argmax(test_scores)
-        st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
-        
-    elif classifier_name == 'KNN':
-        K = range(1,70)
-        ls = range(1,40)
-        grid = get_grid_knn(K, ls)
-        
-        # defining parameter range
-        grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
-        
-        # fitting the model for grid search
-        grid_search=grid.fit(X_train, y_train)
-        
-        st.write(grid_search.best_params_)
-        accuracy = grid_search.best_score_ *100
-        print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
-        knn = classifier(params=grid_search.best_params_)
-        knn.fit(X, y)
-        y_test_hat=knn.predict(X_test) 
+        if classifier_name == 'Random Forest':
+            
+            # For a random forest regression model, the best parameters to consider are:
+            n_estimators = [20,25,30,35,40,45,50,60,70] # Number of trees in the forest
+            max_depth = [8,9,10,11,13, 15, 17, 20] # Maximum depth in a tree
+            #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
+            #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
+            bootstrap = [True, False] # Sampling for datapoints.
+            #random_state = [42] # Generated random numbers for the random forest.
+            #max_features = [1]
+            grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
+            st.subheader('Parameters Grid:')
+            test_scores = []
+            for g in ParameterGrid(grid):
+                classifier.set_params(**g) 
+                classifier.fit(X_train, y_train)
+                test_scores.append(classifier.score(X_test, y_test))
+            best_index = np.argmax(test_scores)
+            st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+            
+        elif classifier_name == 'KNN':
+            K = range(1,70)
+            ls = range(1,40)
+            grid = get_grid_knn(K, ls)
+            
+            # defining parameter range
+            grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
+            
+            # fitting the model for grid search
+            grid_search=grid.fit(X_train, y_train)
+            
+            st.write(grid_search.best_params_)
+            accuracy = grid_search.best_score_ *100
+            print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            knn = classifier(params=grid_search.best_params_)
+            knn.fit(X, y)
+            y_test_hat=knn.predict(X_test) 
 
-        test_accuracy=accuracy_score(y_test,y_test_hat)*100
+            test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
-        print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
-        plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+            print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+        elif classifier_name == 'SVM':
+            C = range(0.1,10.0,0.9)
+            kernel = ['linear', 'poly', 'rbf', 'sigmoid']
+            degree = range(3,15,3)
+            grid = get_grid_svm(C, kernel, degree)
+            
+            # defining parameter range
+            grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
+            
+            # fitting the model for grid search
+            grid_search=grid.fit(X_train, y_train)
+            
+            st.write(grid_search.best_params_)
+            accuracy = grid_search.best_score_ *100
+            print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            knn = classifier(params=grid_search.best_params_)
+            knn.fit(X, y)
+            y_test_hat=knn.predict(X_test) 
+
+            test_accuracy=accuracy_score(y_test,y_test_hat)*100
+
+            print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
 
 
 

@@ -165,3 +165,11 @@ def get_grid_knn(k, leaf_size):
         'leaf_size': leaf_size
     }
     return grid_knn
+
+def get_grid_svm(c, kernel, degree):
+    grid = {
+        'C': c,
+        'kernel': kernel,
+        'degree': degree
+    }
+    return grid
