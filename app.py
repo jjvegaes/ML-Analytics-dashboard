@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import ParameterGrid, train_test_split, GridSearchCV
 import seaborn as sns
 import warnings
-from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, normalize, put_dataset, solve, user_input_features, get_grid_rf
+from bia_functions import add_params_classifier, get_grid_svm, cleaning_dataset, get_classifier, get_grid_knn, normalize, put_dataset, solve, user_input_features, get_grid_rf
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
@@ -131,8 +131,8 @@ if st.button('Click here for compute brute force on hyperparameters'):
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
         elif classifier_name == 'KNN':
-            K = range(1,70)
-            ls = range(1,40)
+            K = range(1,70,15)
+            ls = range(1,40,12)
             grid = get_grid_knn(K, ls)
             
             # defining parameter range
@@ -152,7 +152,9 @@ if st.button('Click here for compute brute force on hyperparameters'):
 
             print("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
+            
         elif classifier_name == 'SVM':
+            
             C = range(0.1,10.0,0.9)
             kernel = ['linear', 'poly', 'rbf', 'sigmoid']
             degree = range(3,15,3)
@@ -167,9 +169,9 @@ if st.button('Click here for compute brute force on hyperparameters'):
             st.write(grid_search.best_params_)
             accuracy = grid_search.best_score_ *100
             print("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
-            knn = classifier(params=grid_search.best_params_)
-            knn.fit(X, y)
-            y_test_hat=knn.predict(X_test) 
+            svm = classifier(params=grid_search.best_params_)
+            svm.fit(X, y)
+            y_test_hat=svm.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
