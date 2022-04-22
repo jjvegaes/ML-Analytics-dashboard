@@ -1,13 +1,10 @@
-from time import sleep
 import numpy as np
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 import streamlit as st
-import datetime 
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import ParameterGrid, RandomizedSearchCV, train_test_split
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import ParameterGrid, train_test_split
 import seaborn as sns
 import warnings
 from sklearn.feature_selection import SelectKBest
