@@ -9,17 +9,17 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import ParameterGrid, train_test_split, GridSearchCV
 import seaborn as sns
 import warnings
-from bia_functions import add_params_classifier, get_grid_svm, cleaning_dataset, get_classifier, get_grid_knn, normalize, put_dataset, solve, user_input_features, get_grid_rf
+from bia_functions import add_params_classifier, get_grid_svm, cleaning_dataset, get_classifier, get_grid_knn, get_grid_tree, normalize, put_dataset, solve, user_input_features, get_grid_rf
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
 
 TYPE_OF_PROBLEM = ['Classification', 'Regression']
-CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Markov Models']
+CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree']
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
-    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=False)
+    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=True)
     X, y = put_dataset()
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
 with st.spinner("Loading sidebar..."):
@@ -133,13 +133,30 @@ if hyper_tuning:
             best_index = np.argmax(test_scores)
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
+        elif classifier_name == 'Decision Tree':
+            
+            # For a random forest regression model, the best parameters to consider are:
+            max_depth = [11, 17] # Maximum depth in a tree
+            min_samples_split = [2, 10] # Minimum number of data points before the sample is split
+            grid = get_grid_tree(max_depth, min_samples_split)
+            
+            st.subheader('Parameters Grid:')
+            test_scores = []
+            
+            for g in ParameterGrid(grid):
+                classifier.set_params(**g) 
+                classifier.fit(X_train, y_train)
+                test_scores.append(classifier.score(X_test, y_test))
+            best_index = np.argmax(test_scores)
+            st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+            
         elif classifier_name == 'KNN':
             K = range(1,70,25)
             ls = range(1,40,22)
             grid = get_grid_knn(K, ls)
             
             # defining parameter range
-            grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
+            grid = GridSearchCV(classifier, grid, cv=3, scoring='accuracy', return_train_score=False,verbose=1)
             
             # fitting the model for grid search
             grid_search=grid.fit(X_train, y_train)
@@ -160,13 +177,13 @@ if hyper_tuning:
             
         elif classifier_name == 'SVM':
             
-            C = range(0.1,10.0,0.9)
+            C = [1,10]
             kernel = ['linear', 'poly', 'rbf', 'sigmoid']
-            degree = range(3,15,3)
+            degree = [3,10,15]
             grid = get_grid_svm(C, kernel, degree)
             
             # defining parameter range
-            grid = GridSearchCV(classifier, grid, cv=10, scoring='accuracy', return_train_score=False,verbose=1)
+            grid = GridSearchCV(classifier, grid, cv=3, scoring='accuracy', return_train_score=False,verbose=1)
             
             # fitting the model for grid search
             grid_search=grid.fit(X_train, y_train)
@@ -186,5 +203,41 @@ if hyper_tuning:
             st.pyplot(fig)
             
 
+####         metrics = st.sidebar.multiselect("What metrics to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+'''
+ if classifier == 'Logistic Regression':
+        st.sidebar.subheader("Model Hyperparameters")
+        C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, step=0.01, key='C_LR')
+        max_iter = st.sidebar.slider("Maxiumum number of interations", 100, 500, key='max_iter')
+        metrics = st.sidebar.multiselect("What metrics to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
 
+        if st.sidebar.button("Classfiy", key='classify'):
+            st.subheader("Logistic Regression Results")
+            model = LogisticRegression(C=C, max_iter=max_iter)
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
+            st.write("Accuracy ", accuracy.round(2))
+            st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
+            st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+            plot_metrics(metrics)
+            
+            
+            
+            def plot_metrics(metrics_list):
+        if 'Confusion Matrix' in metrics_list:
+            st.subheader("Confusion Matrix") 
+            plot_confusion_matrix(model, x_test, y_test, display_labels=class_names)
+            st.pyplot()
+        
+        if 'ROC Curve' in metrics_list:
+            st.subheader("ROC Curve") 
+            plot_roc_curve(model, x_test, y_test)
+            st.pyplot()
+
+        if 'Precision-Recall Curve' in metrics_list:
+            st.subheader("Precision-Recall Curve")
+            plot_precision_recall_curve(model, x_test, y_test)
+            st.pyplot()
+'''
 
