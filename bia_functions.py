@@ -83,8 +83,14 @@ def add_params_classifier(cls_name):
         params['K'] = K
         params['leaf_size'] = leaf_size
     elif cls_name == 'SVM':
-        C = st.sidebar.slider('C', 0.01, 10.00)
+        params['degree'] = 1
+        C = st.sidebar.slider('C. Regularization parameter.', 0.01, 10.00)
+        kernel = st.sidebar.selectbox("SVM KERNEL", ['linear', 'poly', 'rbf', 'sigmoid'], 'rbf')
+        if kernel == 'poly':
+            degree = st.sidebar.slider('DEGREE POLYNOMIAL KERNEL', 1, 20)
+            params['degree'] = degree
         params['C'] = C
+        params['kernel'] = kernel
     elif cls_name == 'Random Forest':
         max_depth = st.sidebar.slider('Max Depth', 2, 25)
         n_estimators = st.sidebar.slider('Number of Estimators', 1, 100)
@@ -106,7 +112,7 @@ def get_classifier(cls_name, params, type_of_problem):
         if cls_name == 'KNN':
             classifier = KNeighborsClassifier(n_neighbors=params['K'], leaf_size=params['leaf_size'])
         elif cls_name == 'SVM':
-            classifier = SVC(C= params['C'])
+            classifier = SVC(C= params['C'], kernel=params['kernel'], degree=params['degree'])
         elif cls_name == 'Random Forest':
             classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=42, min_samples_leaf=params['min_samples_leaf'], min_samples_split=params['min_samples_split'], bootstrap=params['bootstrap'])
     else:
