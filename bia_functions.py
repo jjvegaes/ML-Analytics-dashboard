@@ -23,7 +23,7 @@ def normalize_data(df):
 
 
 def put_dataset():
-    uploaded_file = streamlit.file_uploader("Choose a file")
+    uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         # Can be used wherever a "file-like" object is accepted:
         X = pd.read_csv(uploaded_file)
