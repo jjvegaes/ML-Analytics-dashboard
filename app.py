@@ -70,7 +70,7 @@ with st.spinner("Confusion matrix..."):
 with st.spinner("Finding bests features..."):
     # find best scored 5 features
     st.subheader('Finding bests features:')
-    select_feature = SelectKBest(f_classif, k=5).fit(X_train, y_train)
+    select_feature = SelectKBest(f_classif, k=3).fit(X_train, y_train)
     scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
     scores.columns = ['cat','score']
     scores = scores.sort_values('score',ascending=False)
