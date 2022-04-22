@@ -55,7 +55,7 @@ def cleaning_dataset(dataset, features_to_remove):
 
 
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
-    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre', 'mode', 'key', 'liveness', 'valence', 'tempo']
+    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song']
     try:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns, remove)
     except:
