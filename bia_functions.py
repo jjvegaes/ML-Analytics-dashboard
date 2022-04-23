@@ -124,6 +124,14 @@ def add_params_classifier(cls_name):
     elif cls_name == 'Logistic Regression':
         C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, step=0.01, key='C_LR')
         max_iter = st.sidebar.slider("Maxiumum number of interations", 100, 500, key='max_iter')
+
+        if st.sidebar.button("Classfiy", key='classify'):
+            st.subheader("Logistic Regression Results")
+            model = LogisticRegression(C=C, max_iter=max_iter)
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
+            
     return params
 
 
@@ -168,8 +176,11 @@ def solve(df_model,y, classifier, classifier_name):
     plt.ylabel('Principal component 2')
     plt.colorbar()
     st.pyplot(fig)
-    if classifier_name == 'tree':
-        #tree.plot_tree(classifier)
+    st.write("Accuracy ", acc)
+    st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
+    st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
+    if classifier_name == 'Decision Tree':
+        tree.plot_tree(classifier)
         pass
     return X_train, X_test, y_train, y_test, y_pred
 
@@ -217,3 +228,34 @@ def naive_accuracy(true, pred):
         if pred[i] == y:
             number_correct += 1.0
     return number_correct / len(true)
+
+
+def plotting_metrics(metrics_list, classifier, x_test, y_test, y_pred, y, x_train, y_train):
+    if 'Confusion Matrix' in metrics_list:
+        fig, ax = plt.subplots()
+        
+        st.subheader("Confusion Matrix") 
+        metrics.plot_confusion_matrix(classifier, x_test, y_test, values_format='d',
+                                      #display_labels=y
+                                      )
+        st.pyplot(fig)
+    
+    if 'ROC Curve' in metrics_list:
+        #st.subheader("ROC Curve") 
+        fig, ax = plt.subplots()
+        #metrics.plot_roc_curve(classifier, x_test, y_test)
+        # Creating visualization with the readable labels
+        #visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
+                                        
+        # Fitting to the training data first then scoring with the test data                                    
+        #visualizer.fit(x_train, y_train)
+        #visualizer.score(x_test, y_test)
+        #visualizer.show()
+        #st.pyplot(fig)
+    
+
+    if 'Precision-Recall Curve' in metrics_list:
+        st.subheader("Precision-Recall Curve")
+        fig, ax = plt.subplots()
+        metrics.plot_precision_recall_curve(classifier, x_test, y_test)
+        st.pyplot(fig)
