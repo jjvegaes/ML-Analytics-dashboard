@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import ParameterGrid, train_test_split, GridSearchCV
 import seaborn as sns
 import warnings
-from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, get_grid_tree, normalize, put_dataset, solve, user_input_features, get_grid_rf, get_grid_svm
+from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, get_grid_tree, normalize, put_dataset, solve, user_input_features, get_grid_rf, get_grid_svm, naive_accuracy
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
@@ -35,17 +35,18 @@ with st.spinner("Loading dataset..."):
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
 with st.spinner("Loading sidebar..."):
     classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)
+    
 with st.spinner("Cleaning and normalizing dataset..."):
     X = cleaning_dataset(X, features_to_remove)
     X_norm = normalize(X)
 with st.spinner("Setting up classifier..."):
     params = add_params_classifier(classifier_name)
     classifier = get_classifier(classifier_name, params, type_of_problem)
+    st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')
+    
 with st.spinner("Training the model..."):
     X_train, X_test, y_train, y_test, y_pred = solve(X, y, classifier, classifier_name)
     
-
-st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')
 
 with st.spinner("Feature engineering..."):
     st.header('FEATURE ENGINEERING')
@@ -143,6 +144,7 @@ if hyper_tuning:
                 test_scores.append(classifier.score(X_test, y_test))
             best_index = np.argmax(test_scores)
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+            
             
         elif classifier_name == 'Decision Tree':
             
