@@ -1,3 +1,4 @@
+from ast import Global
 from ensurepip import bootstrap
 from matplotlib import pyplot as plt
 from sklearn import metrics
@@ -35,17 +36,16 @@ def put_dataset():
     X = X.loc[:, ~X.columns.str.contains('^Unnamed')]
     target_variable = st.sidebar.selectbox("Target feature", X.columns, index=len(X.columns)-1)
     y = X[target_variable].copy(deep=True)
-    #X.drop([target_variable], axis=1, inplace=True)
     y = pd.factorize(y)[0]
     return X, y
     
 
 def cleaning_dataset(dataset, features_to_remove):
     # replacing values
-    #dataset['main_genre'].replace(dataset.main_genre.unique(), range(len(dataset.main_genre.unique())), inplace=True)
-    dataset['name'].replace(dataset.name.unique(), range(len(dataset.name.unique())), inplace=True)
-    dataset['song_type'].replace(dataset.song_type.unique(), range(len(dataset.song_type.unique())), inplace=True)
-    dataset['artist_type'].replace(dataset.artist_type.unique(), range(len(dataset.artist_type.unique())), inplace=True)
+    for column in dataset:
+        if dataset[column].dtype == 'object' and column not in features_to_remove:
+            dataset[column].replace(dataset[column].unique(), range(len(dataset[column].unique())), inplace=True)
+    
     for column in features_to_remove:
         try:
             dataset.drop([column], axis=1, inplace=True) 
@@ -55,11 +55,18 @@ def cleaning_dataset(dataset, features_to_remove):
 
 
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
-    remove = ['song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'main_genre', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song','speechiness']
+    remove = ['main_genre', 'song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song','speechiness'] #+ columns_to_remove
+    st.sidebar.header("Data cleaning")
+    #TODO: filtro para eliminar clases con solo una muestra, para crear un dataset distribuido
+    #dataset['main_genre'].replace(dataset['main_genre'].unique(), range(len(dataset['main_genre'].unique())), inplace=True)
+    #dataset = dataset.drop(dataset.groupby(by='main_genre').count() < 2, axis=0)
+    #dataset.dropna()
+    
     try:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns, remove)
     except:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns)
+    st.sidebar.header("MODEL")
     classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=3)
     type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)
     return classifier_name, type_problem, columns_to_remove
@@ -69,16 +76,19 @@ def normalize(X):
     df_model = X.copy()
     scaler = StandardScaler()
     #scaler = RobustScaler()
-
     features = [X.columns]
     for feature in features:
-        df_model[feature] = scaler.fit_transform(df_model[feature])
+        try:
+            df_model[feature] = scaler.fit_transform(df_model[feature])
+        except:
+            pass
     df_model = pd.get_dummies(df_model)
     return df_model 
 
 
 def add_params_classifier(cls_name):
     params = dict()
+    st.sidebar.header("Model Hyperparameters")
     if cls_name == 'KNN':
         K = st.sidebar.slider('K', 1, 70)
         leaf_size = st.sidebar.slider('Leaf size', 1, 40)
@@ -111,6 +121,17 @@ def add_params_classifier(cls_name):
         min_samples_split = st.sidebar.slider('Minimum samples split', 2, 10)
         params['max_depth'] = max_depth
         params['min_samples_split'] = min_samples_split
+    elif cls_name == 'Logistic Regression':
+        C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, step=0.01, key='C_LR')
+        max_iter = st.sidebar.slider("Maxiumum number of interations", 100, 500, key='max_iter')
+
+        if st.sidebar.button("Classfiy", key='classify'):
+            st.subheader("Logistic Regression Results")
+            model = LogisticRegression(C=C, max_iter=max_iter)
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
+            
     return params
 
 
@@ -155,8 +176,11 @@ def solve(df_model,y, classifier, classifier_name):
     plt.ylabel('Principal component 2')
     plt.colorbar()
     st.pyplot(fig)
-    if classifier_name == 'tree':
-        #tree.plot_tree(classifier)
+    st.write("Accuracy ", acc)
+    st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
+    st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
+    if classifier_name == 'Decision Tree':
+        tree.plot_tree(classifier)
         pass
     return X_train, X_test, y_train, y_test, y_pred
 
@@ -196,3 +220,42 @@ def get_grid_svm(c, kernel, degree):
         'degree': degree
     }
     return grid
+
+def naive_accuracy(true, pred):
+    number_correct = 0
+    i = 0
+    for y in true:
+        if pred[i] == y:
+            number_correct += 1.0
+    return number_correct / len(true)
+
+
+def plotting_metrics(metrics_list, classifier, x_test, y_test, y_pred, y, x_train, y_train):
+    if 'Confusion Matrix' in metrics_list:
+        fig, ax = plt.subplots()
+        
+        st.subheader("Confusion Matrix") 
+        metrics.plot_confusion_matrix(classifier, x_test, y_test, values_format='d',
+                                      #display_labels=y
+                                      )
+        st.pyplot(fig)
+    
+    if 'ROC Curve' in metrics_list:
+        #st.subheader("ROC Curve") 
+        fig, ax = plt.subplots()
+        #metrics.plot_roc_curve(classifier, x_test, y_test)
+        # Creating visualization with the readable labels
+        #visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
+                                        
+        # Fitting to the training data first then scoring with the test data                                    
+        #visualizer.fit(x_train, y_train)
+        #visualizer.score(x_test, y_test)
+        #visualizer.show()
+        #st.pyplot(fig)
+    
+
+    if 'Precision-Recall Curve' in metrics_list:
+        st.subheader("Precision-Recall Curve")
+        fig, ax = plt.subplots()
+        metrics.plot_precision_recall_curve(classifier, x_test, y_test)
+        st.pyplot(fig)

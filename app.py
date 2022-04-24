@@ -9,34 +9,48 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import ParameterGrid, train_test_split, GridSearchCV
 import seaborn as sns
 import warnings
-from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, get_grid_tree, normalize, put_dataset, solve, user_input_features, get_grid_rf, get_grid_svm
+from bia_functions import add_params_classifier, cleaning_dataset, get_classifier, get_grid_knn, get_grid_tree, normalize, put_dataset, solve, user_input_features, get_grid_rf, get_grid_svm, plotting_metrics
 warnings.filterwarnings('ignore')
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import RFECV, SelectKBest, f_classif
+from sklearn.datasets import load_boston, load_breast_cancer, load_diabetes, load_iris, load_wine
 
 TYPE_OF_PROBLEM = ['Classification', 
                    #'Regression'
                    ]
 CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree']
+DATASETS = [
+    #'Boston Houses', 
+    'breast_cancer',
+    #'Diabetes',
+    'iris',
+    'wine'
+            ]
+
+PLOTS = []
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
     hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=True)
+    #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
     X, y = put_dataset()
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
 with st.spinner("Loading sidebar..."):
     classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)
+    
 with st.spinner("Cleaning and normalizing dataset..."):
     X = cleaning_dataset(X, features_to_remove)
     X_norm = normalize(X)
 with st.spinner("Setting up classifier..."):
     params = add_params_classifier(classifier_name)
     classifier = get_classifier(classifier_name, params, type_of_problem)
+    
 with st.spinner("Training the model..."):
     X_train, X_test, y_train, y_test, y_pred = solve(X, y, classifier, classifier_name)
+with st.spinner("Plotting metrics..."):
+    plot_options = st.sidebar.multiselect("What to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
+    plotting_metrics(plot_options, classifier, X_test, y_test,y_pred, y, X_train, y_train)
     
-
-st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')
 
 with st.spinner("Feature engineering..."):
     st.header('FEATURE ENGINEERING')
@@ -135,6 +149,7 @@ if hyper_tuning:
             best_index = np.argmax(test_scores)
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
+            
         elif classifier_name == 'Decision Tree':
             
             # For a random forest regression model, the best parameters to consider are:
@@ -205,43 +220,6 @@ if hyper_tuning:
             st.pyplot(fig)
             
 
-####         metrics = st.sidebar.multiselect("What metrics to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
-'''
- if classifier == 'Logistic Regression':
-        st.sidebar.subheader("Model Hyperparameters")
-        C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, step=0.01, key='C_LR')
-        max_iter = st.sidebar.slider("Maxiumum number of interations", 100, 500, key='max_iter')
-        metrics = st.sidebar.multiselect("What metrics to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
-
-        if st.sidebar.button("Classfiy", key='classify'):
-            st.subheader("Logistic Regression Results")
-            model = LogisticRegression(C=C, max_iter=max_iter)
-            model.fit(x_train, y_train)
-            accuracy = model.score(x_test, y_test)
-            y_pred = model.predict(x_test)
-            st.write("Accuracy ", accuracy.round(2))
-            st.write("Precision: ", precision_score(y_test, y_pred, labels=class_names).round(2))
-            st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
-            plot_metrics(metrics)
-            
-            
-            
-            def plot_metrics(metrics_list):
-        if 'Confusion Matrix' in metrics_list:
-            st.subheader("Confusion Matrix") 
-            plot_confusion_matrix(model, x_test, y_test, display_labels=class_names)
-            st.pyplot()
-        
-        if 'ROC Curve' in metrics_list:
-            st.subheader("ROC Curve") 
-            plot_roc_curve(model, x_test, y_test)
-            st.pyplot()
-
-        if 'Precision-Recall Curve' in metrics_list:
-            st.subheader("Precision-Recall Curve")
-            plot_precision_recall_curve(model, x_test, y_test)
-            st.pyplot()
-'''
 
 # IDEA SAVE MODELS 
 '''from joblib import dump, load
@@ -249,3 +227,6 @@ if hyper_tuning:
 >>> clf = load('filename.joblib') 
 
 '''
+
+
+st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')
