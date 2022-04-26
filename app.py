@@ -49,7 +49,7 @@ with st.spinner("Training the model..."):
     X_train, X_test, y_train, y_test, y_pred = solve(X, y, classifier, classifier_name)
 with st.spinner("Plotting metrics..."):
     plot_options = st.sidebar.multiselect("What to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
-    plotting_metrics(plot_options, classifier, X_test, y_test,y_pred, y, X_train, y_train)
+    plotting_metrics(plot_options, classifier, X_test, y_test)
     
 
 with st.spinner("Feature engineering..."):

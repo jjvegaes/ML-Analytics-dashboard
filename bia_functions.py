@@ -244,15 +244,15 @@ def naive_accuracy(true, pred):
     return number_correct / len(true)
 
 
-def plotting_metrics(metrics_list, classifier, x_test, y_test, y_pred, y, x_train, y_train):
+def plotting_metrics(metrics_list, classifier, x_test, y_test):
     if 'Confusion Matrix' in metrics_list:
         fig, ax = plt.subplots()
         
         st.subheader("Confusion Matrix") 
-        metrics.plot_confusion_matrix(classifier, x_test, y_test, values_format='d',
-                                      #display_labels=y
-                                      )
+        metrics.plot_confusion_matrix(classifier, x_test, y_test)
         st.pyplot(fig)
+        st.write(fig)
+        plt.show()
     
     if 'ROC Curve' in metrics_list:
         #st.subheader("ROC Curve") 
