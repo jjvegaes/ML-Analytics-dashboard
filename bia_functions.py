@@ -1,7 +1,10 @@
 from ast import Global
 from ensurepip import bootstrap
 from matplotlib import pyplot as plt
+import numpy as np
 from sklearn import metrics
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.metrics import confusion_matrix
 from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -13,6 +16,7 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 import streamlit as st
 from sklearn.datasets import load_boston, load_breast_cancer, load_diabetes, load_iris, load_wine
+import seaborn as sns
 
 
 def normalize_data(df):
@@ -81,7 +85,7 @@ def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
     except:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns)
     st.sidebar.header("MODEL")
-    classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=3)
+    classifier_name = st.sidebar.selectbox("Classifier", CLASSIFIERS, index=2)
     type_problem = st.sidebar.radio('Type of problem', TYPE_OF_PROBLEM)
     return classifier_name, type_problem, columns_to_remove
 
@@ -172,7 +176,6 @@ def get_classifier(cls_name, params, type_of_problem):
 
 
 def solve(df_model,y, classifier, classifier_name):
-    #Classification
     X_train, X_test, y_train, y_test = train_test_split(df_model, y, test_size=0.25, random_state=1234)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
@@ -186,13 +189,12 @@ def solve(df_model,y, classifier, classifier_name):
     x1, x2 = X_projected[:, 0], X_projected[:, 1]
     fig = plt.figure()
     plt.scatter(x1, x2, c=y ,alpha=0.8, cmap='viridis')
-    plt.xlabel('Principal component 1')
-    plt.ylabel('Principal component 2')
+    plt.xlabel(f'Dimensional reduction, principal component 1')
+    plt.ylabel('Dimensional reduction, principal component 2')
     plt.colorbar()
     st.pyplot(fig)
     st.write("Accuracy ", acc)
-    st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
-    st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
+    
     if classifier_name == 'Decision Tree':
         tree.plot_tree(classifier)
         pass
@@ -244,32 +246,75 @@ def naive_accuracy(true, pred):
     return number_correct / len(true)
 
 
-def plotting_metrics(metrics_list, classifier, x_test, y_test):
-    if 'Confusion Matrix' in metrics_list:
-        fig, ax = plt.subplots()
-        
-        st.subheader("Confusion Matrix") 
-        metrics.plot_confusion_matrix(classifier, x_test, y_test)
-        st.pyplot(fig)
-        st.write(fig)
-        plt.show()
-    
+def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_train, y, y_pred):  
+    #TODO: NOT WORKING ROC CURVE
     if 'ROC Curve' in metrics_list:
-        #st.subheader("ROC Curve") 
+        st.subheader("ROC Curve") 
         fig, ax = plt.subplots()
-        #metrics.plot_roc_curve(classifier, x_test, y_test)
+        metrics.plot_roc_curve(classifier, x_test, y_test)
+        
         # Creating visualization with the readable labels
-        #visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
-                                        
-        # Fitting to the training data first then scoring with the test data                                    
-        #visualizer.fit(x_train, y_train)
-        #visualizer.score(x_test, y_test)
-        #visualizer.show()
-        #st.pyplot(fig)
+        visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
+                     
+        # Fitting to the training data first then scoring with the test data  
+        st.write('Remember: Problem np.float64 dosnt have attribute fit')
+        st.dataframe(y_train)   
+        visualizer.fit(X_train, y_train)                               
+        visualizer.score(x_test, y_test)
+        visualizer.show()
+        st.pyplot(fig)
     
-
     if 'Precision-Recall Curve' in metrics_list:
+        # We dont need these matrices because we already plot them
+        #st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
+        #st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
         st.subheader("Precision-Recall Curve")
         fig, ax = plt.subplots()
-        metrics.plot_precision_recall_curve(classifier, x_test, y_test)
+        metrics.plot_precision_recall_curve(classifier, x_test, y_test, ax=ax)
         st.pyplot(fig)
+
+    if 'Correlation MAP' in metrics_list:
+        with st.spinner("Correlation MAP..."):
+            st.subheader('Correlation MAP: ')
+            #correlation map
+            f,ax = plt.subplots(figsize=(12, 10))
+            sns.heatmap(X.corr(), annot=True, linewidths=.5, fmt= '.1f', ax=ax)
+            st.write(f)
+
+    if 'Confusion Matrix' in metrics_list:
+        with st.spinner("Confusion matrix..."):
+            f,ax = plt.subplots(figsize=(10, 5))
+            cm = confusion_matrix(y_test,classifier.predict(x_test))
+            labels = ['True Neg','False Pos','False Neg','True Pos']
+            labels = np.asarray(labels).reshape(2,2)
+            sns.heatmap(cm,annot=labels, fmt='', ax=ax, cmap='Blues')
+            st.subheader('Confusion matrix: ')
+            st.write(f)
+
+    if 'Best Features' in metrics_list:
+        with st.spinner("Finding best features..."):
+            # find best scored 5 features
+            st.subheader('Finding best features:')
+            select_feature = SelectKBest(f_classif, k=3).fit(X_train, y_train)
+            scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
+            scores.columns = ['cat','score']
+            scores = scores.sort_values('score',ascending=False)
+            fig, ax = plt.subplots(figsize=(14, 10))
+            sns.barplot(x='score',y='cat',data=scores, palette='seismic', ax=ax)
+            plt.show()
+            st.write(fig)
+            
+    if 'Variance Ratio' in metrics_list:
+        with st.spinner("Computing variance ratio..."):
+            X_norm_train, X_norm_test, y_norm_train, y_norm_test = train_test_split(X, y, test_size=0.25, random_state=1234)
+            st.subheader('Variance ratio:')
+            pca = PCA()
+            pca.fit(X_norm_train)
+            fig = plt.figure(1, figsize=(10, 5))
+            plt.clf()
+            plt.axes([.2, .2, .7, .7])
+            plt.plot(pca.explained_variance_ratio_, linewidth=2)
+            plt.axis('tight')
+            plt.xlabel('n_components')
+            plt.ylabel('explained_variance_ratio_')
+            st.write(fig)

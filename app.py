@@ -27,11 +27,13 @@ DATASETS = [
     'wine'
             ]
 
-PLOTS = []
+PLOTS = ['Confusion Matrix', 
+         #'ROC Curve', # TODO: NOT WORKING ROC CURVE
+         'Precision-Recall Curve','Correlation MAP', 'Variance Ratio', 'Best Features' ]
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
-    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=True)
+    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=False)
     options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
     #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
     X, y = put_dataset(options_dataset)
@@ -46,10 +48,10 @@ with st.spinner("Setting up classifier..."):
     classifier = get_classifier(classifier_name, params, type_of_problem)
     
 with st.spinner("Training the model..."):
-    X_train, X_test, y_train, y_test, y_pred = solve(X, y, classifier, classifier_name)
-with st.spinner("Plotting metrics..."):
-    plot_options = st.sidebar.multiselect("What to plot?",('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve'))
-    plotting_metrics(plot_options, classifier, X_test, y_test)
+    #TODO: STILL HAVE TO TRY PROPHET OF FB
+    X_train, X_test, y_train, y_test, y_pred = solve(X_norm, y, classifier, classifier_name)
+
+
     
 
 with st.spinner("Feature engineering..."):
@@ -61,39 +63,10 @@ with st.spinner("Feature engineering..."):
     st.write('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
     st.write('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
     st.write('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    
-with st.spinner("Correlation pearson..."):
-    st.subheader('Correlation Matrix: ')
-    corr_matrix = X.corr(method='pearson')
-    corr_matrix.style.background_gradient(cmap='coolwarm')
-    st.write(corr_matrix)
-    
-with st.spinner("Correlation MAP..."):
-    st.subheader('Correlation MAP: ')
-    #correlation map
-    f,ax = plt.subplots(figsize=(12, 10))
-    sns.heatmap(X.corr(), annot=True, linewidths=.5, fmt= '.1f', ax=ax)
-    st.write(f)
-    
-with st.spinner("Confusion matrix..."):
-    st.subheader('Confusion matrix: ')
-    #f,ax = plt.subplots(figsize=(10, 5))
-    cm = confusion_matrix(y_test,classifier.predict(X_test))
-    #sns.heatmap(cm,annot=True,fmt="d", ax=ax)
-    st.write(cm)
 
-
-with st.spinner("Finding bests features..."):
-    # find best scored 5 features
-    st.subheader('Finding bests features:')
-    select_feature = SelectKBest(f_classif, k=3).fit(X_train, y_train)
-    scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
-    scores.columns = ['cat','score']
-    scores = scores.sort_values('score',ascending=False)
-    fig, ax = plt.subplots(figsize=(14, 10))
-    sns.barplot(x='score',y='cat',data=scores, palette='seismic', ax=ax)
-    plt.show()
-    st.write(fig)
+with st.spinner("Plotting metrics..."):
+    plot_options = st.sidebar.multiselect("What to plot?", PLOTS)
+    plotting_metrics(plot_options, classifier, X_test, y_test, X_norm, X_train, y_train, y, y_pred)
     
 if classifier_name == 'Random Forest':
     with st.spinner("Finding optimal number of features and best ones..."):
@@ -110,21 +83,6 @@ if classifier_name == 'Random Forest':
         st.write(fig)
     
 
-
-with st.spinner("Computing variance ratio..."):
-    X_norm_train, X_norm_test, y_norm_train, y_norm_test = train_test_split(X_norm, y, test_size=0.25, random_state=1234)
-    st.subheader('Variance ratio:')
-    pca = PCA()
-    pca.fit(X_norm_train)
-    fig = plt.figure(1, figsize=(10, 5))
-    plt.clf()
-    plt.axes([.2, .2, .7, .7])
-    plt.plot(pca.explained_variance_ratio_, linewidth=2)
-    plt.axis('tight')
-    plt.xlabel('n_components')
-    plt.ylabel('explained_variance_ratio_')
-    st.write(fig)
-    
 if hyper_tuning:
     with st.spinner("Computing parameters grid..."):
         st.warning('This may take a while since it is computing the best set of parameters for training our model.')
@@ -219,6 +177,8 @@ if hyper_tuning:
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
             st.pyplot(fig)
             
+st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='dataset.csv')
+
 
 
 # IDEA SAVE MODELS 
@@ -229,4 +189,3 @@ if hyper_tuning:
 '''
 
 
-st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='songs.csv')
