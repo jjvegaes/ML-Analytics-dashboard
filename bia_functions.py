@@ -12,6 +12,7 @@ from sklearn.svm import SVC, SVR
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 import streamlit as st
+from sklearn.datasets import load_boston, load_breast_cancer, load_diabetes, load_iris, load_wine
 
 
 def normalize_data(df):
@@ -25,13 +26,26 @@ def normalize_data(df):
     return y
 
 
-def put_dataset():
+def put_dataset(options_dataset):
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         # Can be used wherever a "file-like" object is accepted:
         X = pd.read_csv(uploaded_file)
     else:
-        X = pd.read_csv('./songs_full_data_processed.csv')
+        if options_dataset is not None:
+            if options_dataset == 'iris':
+                df = load_iris()
+            elif options_dataset == 'breast_cancer':
+                df = load_breast_cancer()
+            elif options_dataset == 'wine':
+                df = load_wine()
+            X = pd.DataFrame(df.data, columns=df.feature_names)
+            y = df.target
+            return X, y
+        else:
+            X = pd.read_csv('./songs_full_data_processed.csv')
+            
+    X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
     X.dropna()
     X = X.loc[:, ~X.columns.str.contains('^Unnamed')]
     target_variable = st.sidebar.selectbox("Target feature", X.columns, index=len(X.columns)-1)

@@ -32,9 +32,9 @@ PLOTS = []
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
     hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=True)
+    options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
     #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
-    X, y = put_dataset()
-    X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
+    X, y = put_dataset(options_dataset)
 with st.spinner("Loading sidebar..."):
     classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)
     
