@@ -3,7 +3,8 @@ from ensurepip import bootstrap
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn import metrics
-from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.feature_selection import SelectKBest, f_classif, f_regression
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn import tree
 from sklearn.decomposition import PCA
@@ -36,7 +37,7 @@ def put_dataset(options_dataset):
         # Can be used wherever a "file-like" object is accepted:
         X = pd.read_csv(uploaded_file)
     else:
-        if options_dataset is not None:
+        '''if options_dataset is not None:
             if options_dataset == 'iris':
                 df = load_iris()
             elif options_dataset == 'breast_cancer':
@@ -46,8 +47,8 @@ def put_dataset(options_dataset):
             X = pd.DataFrame(df.data, columns=df.feature_names)
             y = df.target
             return X, y
-        else:
-            X = pd.read_csv('./songs_full_data_processed.csv')
+        else:'''
+        X = pd.read_csv('./songs_full_data_processed.csv')
             
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
     X.dropna()
@@ -92,7 +93,7 @@ def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
 
 def normalize(X):
     df_model = X.copy()
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     #scaler = RobustScaler()
     features = [X.columns]
     for feature in features:
@@ -140,16 +141,10 @@ def add_params_classifier(cls_name):
         params['max_depth'] = max_depth
         params['min_samples_split'] = min_samples_split
     elif cls_name == 'Logistic Regression':
-        C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, step=0.01, key='C_LR')
-        max_iter = st.sidebar.slider("Maxiumum number of interations", 100, 500, key='max_iter')
-
-        if st.sidebar.button("Classfiy", key='classify'):
-            st.subheader("Logistic Regression Results")
-            model = LogisticRegression(C=C, max_iter=max_iter)
-            model.fit(x_train, y_train)
-            accuracy = model.score(x_test, y_test)
-            y_pred = model.predict(x_test)
-            
+        C = st.sidebar.number_input("C (Regularizaion parameter)", 0.01, 10.0, key='C_LR')
+        max_iter = int(st.sidebar.number_input("Maxiumum number of interations", 150, 600, key='max_iter'))
+        params['C'] = C
+        params['max_iter'] = max_iter
     return params
 
 
@@ -172,16 +167,21 @@ def get_classifier(cls_name, params, type_of_problem):
             classifier = RandomForestRegressor(n_estimators=params['n_estimators'], max_depth=params['max_depth'], random_state=1234)
         elif cls_name == 'Decision Tree':
             classifier = DecisionTreeRegressor(max_depth=params['max_depth'], min_samples_split=params['min_samples_split'])
+        elif cls_name == 'Logistic Regression':
+            classifier = LogisticRegression(C=params['C'], max_iter=params['max_iter'])
     return classifier
 
 
-def solve(df_model,y, classifier, classifier_name):
+def solve(df_model, y, classifier, classifier_name, TYPE_OF_PROBLEM):
     X_train, X_test, y_train, y_test = train_test_split(df_model, y, test_size=0.25, random_state=1234)
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
-    acc = metrics.accuracy_score(y_test, y_pred)
+    if TYPE_OF_PROBLEM == 'Classification':
+        acc = metrics.accuracy_score(y_test, y_pred) # TODO: ERROR continuous is not supported with regression, only classification here
+    else:
+        acc = classifier.score(X_test, y_test) # TODO: ERROR ValueError: Unknown label type: 'continuous'
     st.success(f"""
-            # Classifier: {classifier_name}
+            # Classifier: {classifier_name}  #
             # Accuracy: {acc}""")
     
     pca = PCA(2)
@@ -197,7 +197,6 @@ def solve(df_model,y, classifier, classifier_name):
     
     if classifier_name == 'Decision Tree':
         tree.plot_tree(classifier)
-        pass
     return X_train, X_test, y_train, y_test, y_pred
 
 
@@ -246,7 +245,7 @@ def naive_accuracy(true, pred):
     return number_correct / len(true)
 
 
-def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_train, y, y_pred):  
+def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_train, y, y_pred, TYPE_OF_PROBLEM):  
     #TODO: NOT WORKING ROC CURVE
     if 'ROC Curve' in metrics_list:
         st.subheader("ROC Curve") 
@@ -257,21 +256,24 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
         visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
                      
         # Fitting to the training data first then scoring with the test data  
-        st.write('Remember: Problem np.float64 dosnt have attribute fit')
+        # st.write('Remember: Problem np.float64 dosnt have attribute fit')
         st.dataframe(y_train)   
         visualizer.fit(X_train, y_train)                               
         visualizer.score(x_test, y_test)
         visualizer.show()
-        st.pyplot(fig)
+        st.write(fig)
     
     if 'Precision-Recall Curve' in metrics_list:
-        # We dont need these matrices because we already plot them
-        #st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
-        #st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
-        st.subheader("Precision-Recall Curve")
-        fig, ax = plt.subplots()
-        metrics.plot_precision_recall_curve(classifier, x_test, y_test, ax=ax)
-        st.pyplot(fig)
+        try: # ONLY IN BINARY OR MULTICLASS CLASSIFICATION WE CAN APPLY THIS
+            # We dont need these matrices because we already plot them
+            #st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
+            #st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
+            st.subheader("Precision-Recall Curve")
+            fig, ax = plt.subplots()
+            metrics.plot_precision_recall_curve(classifier, x_test, y_test, ax=ax)
+            st.write(fig)
+        except:
+            pass
 
     if 'Correlation MAP' in metrics_list:
         with st.spinner("Correlation MAP..."):
@@ -282,20 +284,27 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
             st.write(f)
 
     if 'Confusion Matrix' in metrics_list:
-        with st.spinner("Confusion matrix..."):
-            f,ax = plt.subplots(figsize=(10, 5))
-            cm = confusion_matrix(y_test,classifier.predict(x_test))
-            labels = ['True Neg','False Pos','False Neg','True Pos']
-            labels = np.asarray(labels).reshape(2,2)
-            sns.heatmap(cm,annot=labels, fmt='', ax=ax, cmap='Blues')
-            st.subheader('Confusion matrix: ')
-            st.write(f)
+        try: # ValueError: Classification metrics can't handle a mix of multiclass and continuous targets
+            with st.spinner("Confusion matrix..."): # We can use this for example with the percent of change and try to classify if the day will be profit or loss
+                f,ax = plt.subplots(figsize=(10, 5))
+                cm = confusion_matrix(y_test,classifier.predict(x_test))
+                labels = ['True Neg','False Pos','False Neg','True Pos']
+                labels = np.asarray(labels).reshape(2,2)
+                sns.heatmap(cm,annot=labels, fmt='', ax=ax, cmap='Blues')
+                st.subheader('Confusion matrix: ')
+                st.write(f)
+        except:
+            pass
 
     if 'Best Features' in metrics_list:
         with st.spinner("Finding best features..."):
-            # find best scored 5 features
+            # find best scored 3 features
             st.subheader('Finding best features:')
-            select_feature = SelectKBest(f_classif, k=3).fit(X_train, y_train)
+            if TYPE_OF_PROBLEM == 'Classification':
+                select_feature = SelectKBest(f_classif, k=3).fit(X_train, y_train)
+            else:
+                select_feature = SelectKBest(f_regression, k=3).fit(X_train, y_train)
+                
             scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
             scores.columns = ['cat','score']
             scores = scores.sort_values('score',ascending=False)
@@ -303,6 +312,19 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
             sns.barplot(x='score',y='cat',data=scores, palette='seismic', ax=ax)
             plt.show()
             st.write(fig)
+            #df.loc[:, df.columns != 'b']
+            #df.drop('b', axis=1)
+            importances = classifier.feature_importances_
+            sorted_index = np.argsort(importances)[::-1]
+            x_values = range(len(importances))
+            labels = np.array(X.columns)[sorted_index]
+            fig, ax = plt.subplots(figsize=(14, 10))
+        
+            plt.bar(x_values, importances[sorted_index], tick_label=labels)
+            plt.xticks(rotation=90)
+            plt.show()
+            st.write(fig)
+            
             
     if 'Variance Ratio' in metrics_list:
         with st.spinner("Computing variance ratio..."):
