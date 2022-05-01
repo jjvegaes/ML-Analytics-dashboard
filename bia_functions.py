@@ -111,8 +111,8 @@ def add_params_classifier(cls_name):
     params = dict()
     st.sidebar.header("Model Hyperparameters")
     if cls_name == 'KNN':
-        K = st.sidebar.slider('K', 1, 70)
-        leaf_size = st.sidebar.slider('Leaf size', 1, 40)
+        K = st.sidebar.slider('K', 1, 700)
+        leaf_size = st.sidebar.slider('Leaf size', 1, 100)
         params['K'] = K
         params['leaf_size'] = leaf_size
     elif cls_name == 'SVM':
@@ -125,8 +125,8 @@ def add_params_classifier(cls_name):
         params['C'] = C
         params['kernel'] = kernel
     elif cls_name == 'Random Forest':
-        max_depth = st.sidebar.slider('Max Depth', 2, 25)
-        n_estimators = st.sidebar.slider('Number of Estimators', 1, 100)
+        max_depth = st.sidebar.slider('Max Depth', 2, 600)
+        n_estimators = st.sidebar.slider('Number of Estimators', 1, 600)
         min_samples_split = st.sidebar.slider('Minimum samples split', 0.01, 1.00)
         min_samples_leaf = st.sidebar.slider('Minimum samples leaf', 1, 15)
         #max_features = st.sidebar.slider('Maximum number of features', 1, 20)
@@ -138,7 +138,7 @@ def add_params_classifier(cls_name):
         params['bootstrap'] = bootstrap
         #params['max_features'] = max_features
     elif cls_name == 'Decision Tree':
-        max_depth = st.sidebar.slider('Max Depth', 2, 60, step=2)
+        max_depth = st.sidebar.slider('Max Depth', 2, 600, step=2)
         min_samples_split = st.sidebar.slider('Minimum samples split', 2, 10)
         params['max_depth'] = max_depth
         params['min_samples_split'] = min_samples_split
