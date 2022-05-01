@@ -30,8 +30,8 @@ def normalize_data(df):
     y = (x - min) / (max - min)
     return y
 
-
-def put_dataset(options_dataset):
+# ADD  options_dataset in order to put other datasets, obviously
+def put_dataset():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         # Can be used wherever a "file-like" object is accepted:
@@ -250,7 +250,7 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
     if 'ROC Curve' in metrics_list:
         st.subheader("ROC Curve") 
         fig, ax = plt.subplots()
-        metrics.plot_roc_curve(classifier, x_test, y_test)
+        metrics.plot_roc_curve(classifier, x_test, y_test, ax=ax)
         
         # Creating visualization with the readable labels
         visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')

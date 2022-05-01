@@ -36,9 +36,9 @@ PLOTS = ['Confusion Matrix',
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
     hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=False)
-    options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
+    #options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
     #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
-    X, y = put_dataset(options_dataset)
+    X, y = put_dataset()
     
 with st.spinner("Loading sidebar..."):
     classifier_name, type_of_problem, features_to_remove = user_input_features(X, TYPE_OF_PROBLEM, CLASSIFIERS)
@@ -197,14 +197,5 @@ if hyper_tuning:
             st.pyplot(fig)
             
 st.sidebar.download_button(label = 'Download dataset', data = X.to_csv(index=False), file_name='dataset.csv')
-
-
-
-# IDEA SAVE MODELS 
-'''from joblib import dump, load
->>> dump(clf, 'filename.joblib') 
->>> clf = load('filename.joblib') 
-
-'''
 
 
