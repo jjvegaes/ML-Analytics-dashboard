@@ -31,15 +31,13 @@ DATASETS = [
     'wine'
             ]
 
-PLOTS = ['Confusion Matrix', 
-         'ROC Curve', # TODO: NOT WORKING ROC CURVE
+PLOTS = [#'Confusion Matrix', 
+         #'ROC Curve', # TODO: NOT WORKING ROC CURVE
          'Precision-Recall Curve','Correlation MAP', 'Variance Ratio', 'Best Features' ]
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
     hyper_tuning = st.sidebar.checkbox('Click here to compute brute force on hyperparameters', value=False)
-    #options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
-    #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
     X, y = put_dataset()
     
 with st.spinner("Loading sidebar..."):
@@ -77,7 +75,6 @@ with st.spinner("Feature engineering..."):
     
 with st.spinner("Plotting metrics..."):
     plot_options = st.sidebar.multiselect("What to plot?", PLOTS)
-    #plotting_metrics(plot_options, classifier, X_test, y_test, X_norm, X_train, y_train, y, y_pred)
     plotting_metrics(plot_options, classifier, X_test, y_test, X_norm, X_train, y_train, y, y_pred, type_of_problem)
     
     
@@ -85,14 +82,13 @@ if classifier_name == 'Random Forest' and TYPE_OF_PROBLEM == 'Classification':
     with st.spinner("Finding optimal number of features and best ones..."):
         st.subheader('Finding optimal number of features:')
         # THIS NEXT LINES ARE ONLY VALID IF OUR MODEL IS A CLASSIFICATOR, NOT A REGRESSOR
-        # The "accuracy" scoring is proportional to the number of correct classifications
         rfecv = RFECV(estimator=classifier, step=1, cv=5,scoring='accuracy')   #5-fold cross-validation
         rfecv = rfecv.fit(X, y) # TODO: ERROR ValueError: Classification metrics can't handle a mix of multiclass and continuous targets
         st.write('Optimal number of features :', rfecv.n_features_)
         st.write('Best features :', X_train.columns[rfecv.support_])
         fig = plt.figure()
         plt.xlabel("Number of features selected")
-        plt.ylabel("Cross validation score of number of selected features")
+        plt.ylabel("CV score of n of selected features")
         plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
         st.write(fig)
     
@@ -102,15 +98,9 @@ if hyper_tuning:
         st.warning('This may take a while since it is computing the best set of parameters for training our model.')
         
         if classifier_name == 'Random Forest':
-            
-            # For a random forest regression model, the best parameters to consider are:
             n_estimators = [20,40,50,100,250] # Number of trees in the forest
             max_depth = [10,20,40, 80, 150] # Maximum depth in a tree
-            #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
-            #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
             bootstrap = [True, False] # Sampling for datapoints.
-            #random_state = [42] # Generated random numbers for the random forest.
-            #max_features = [1]
             grid = get_grid_rf(n_estimators, max_depth, 0, 0, bootstrap, 0)
             st.subheader('Parameters Grid:')
             test_scores = []
@@ -121,7 +111,7 @@ if hyper_tuning:
             best_index = np.argmax(test_scores)
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
-            st.subheader('RandomizedSearchCV: ')
+            st.subheader('Randomized Search CV: ')
             rscv = RandomizedSearchCV(estimator=classifier, param_distributions=grid, cv=2, n_jobs=-1, verbose=2, n_iter=200)
             rscv_fit = rscv.fit(X_train, y_train)
             best_parameters = rscv_fit.best_params_
@@ -129,10 +119,8 @@ if hyper_tuning:
             
             
         elif classifier_name == 'Decision Tree':
-            
-            # For a random forest regression model, the best parameters to consider are:
-            max_depth = range(10,120,25) # Maximum depth in a tree
-            min_samples_split = range(2,10,5) # Minimum number of data points before the sample is split
+            max_depth = range(10,120,20) 
+            min_samples_split = range(2,12,5) 
             grid = get_grid_tree(max_depth, min_samples_split)
             
             st.subheader('Parameters Grid:')
@@ -149,23 +137,19 @@ if hyper_tuning:
             K = range(10,120,25)
             ls = range(10,100,22)
             grid = get_grid_knn(K, ls)
-            
-            # defining parameter range
             grid = GridSearchCV(classifier, grid, cv=3, scoring='accuracy', return_train_score=False,verbose=1)
-            
-            # fitting the model for grid search
             grid_search=grid.fit(X_train, y_train)
             
             st.write(grid_search.best_params_)
             accuracy = grid_search.best_score_ *100
-            st.write("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            st.write(f"Accuracy with tuning: {accuracy:.2f}%")
             knn = KNeighborsClassifier(n_neighbors=grid_search.best_params_['n_neighbors'], leaf_size=grid_search.best_params_['leaf_size'])
             knn.fit(X, y)
             y_test_hat=knn.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
-            st.write("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            st.write(f"Accuracy in testing dataset with tuning: {test_accuracy:.2f}%")
             fig, ax = plt.subplots()
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
             st.pyplot(fig)
@@ -176,23 +160,19 @@ if hyper_tuning:
             kernel = ['linear', 'poly', 'rbf', 'sigmoid']
             degree = [3,10,15]
             grid = get_grid_svm(C, kernel, degree)
-            
-            # defining parameter range
             grid = GridSearchCV(classifier, grid, cv=3, scoring='accuracy', return_train_score=False,verbose=3)
-            
-            # fitting the model for grid search
             grid_search=grid.fit(X_train, y_train)
             
             st.write(grid_search.best_params_)
             accuracy = grid_search.best_score_ *100
-            st.write("Accuracy for our training dataset with tuning is : {:.2f}%".format(accuracy) )
+            st.write(f"Accuracy with tuning: {accuracy:.2f}%")
             svm = SVC(C=grid_search.best_params_['C'], kernel=grid_search.best_params_['kernel'], degree=grid_search.best_params_['degree'])
             svm.fit(X, y)
             y_test_hat=svm.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
-            st.write("Accuracy for our testing dataset with tuning is : {:.2f}%".format(test_accuracy) )
+            st.write(f"Accuracy in testing dataset with tuning is : {test_accuracy:.2f}%")
             fig, ax = plt.subplots()
             plot_confusion_matrix(grid,X_test, y_test,values_format='d' )
             st.pyplot(fig)
