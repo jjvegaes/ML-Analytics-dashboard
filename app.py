@@ -68,10 +68,6 @@ with st.spinner("Feature engineering..."):
     st.write('MAE:', metrics.mean_absolute_error(y_test, y_pred))
     st.write('MSE:', metrics.mean_squared_error(y_test, y_pred))
     st.write('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-    errors = abs(y_pred - y_test)
-    mape = 100 * (errors / y_test)
-    accuracy = 100 - np.mean(mape)
-    st.write('Accuracy:', round(accuracy, 2), '%.') 
     
     
 with st.spinner("Plotting metrics..."):
