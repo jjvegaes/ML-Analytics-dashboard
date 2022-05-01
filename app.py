@@ -19,7 +19,9 @@ TYPE_OF_PROBLEM = ['Classification',
                    'Regression'
                    ]
 
-CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree', 'Logistic Regression']
+CLASSIFIERS = ['KNN', 'SVM', 'Random Forest', 'Decision Tree', 
+               #'Logistic Regression'
+               ]
 
 DATASETS = [
     #'Boston Houses', 
@@ -35,7 +37,7 @@ PLOTS = ['Confusion Matrix',
 
 with st.spinner("Loading dataset..."):
     st.sidebar.header('User Input Parameters')
-    hyper_tuning = st.sidebar.checkbox('Click here for compute brute force on hyperparameters', value=False)
+    hyper_tuning = st.sidebar.checkbox('Click here to compute brute force on hyperparameters', value=False)
     #options_dataset = st.sidebar.selectbox('Select another dataset if you wish', DATASETS)
     #dataset_to_load = st.sidebar.selectbox("SELECT DATASET", DATASETS, index=0)
     X, y = put_dataset()
@@ -102,8 +104,8 @@ if hyper_tuning:
         if classifier_name == 'Random Forest':
             
             # For a random forest regression model, the best parameters to consider are:
-            n_estimators = [20,40,50,100,250, 500, 750, 1000, 1300] # Number of trees in the forest
-            max_depth = [10,20,40, 80, 150, 300, 600, 1000] # Maximum depth in a tree
+            n_estimators = [20,40,50,100,250] # Number of trees in the forest
+            max_depth = [10,20,40, 80, 150] # Maximum depth in a tree
             #min_samples_split = [2, 5, 7, 10] # Minimum number of data points before the sample is split
             #min_samples_leaf = [1, 5, 9, 15] # Minimum number of leaf nodes required to be sampled.
             bootstrap = [True, False] # Sampling for datapoints.
@@ -129,8 +131,8 @@ if hyper_tuning:
         elif classifier_name == 'Decision Tree':
             
             # For a random forest regression model, the best parameters to consider are:
-            max_depth = range(10,500,25) # Maximum depth in a tree
-            min_samples_split = range(2,10,4) # Minimum number of data points before the sample is split
+            max_depth = range(10,120,25) # Maximum depth in a tree
+            min_samples_split = range(2,10,5) # Minimum number of data points before the sample is split
             grid = get_grid_tree(max_depth, min_samples_split)
             
             st.subheader('Parameters Grid:')
@@ -144,7 +146,7 @@ if hyper_tuning:
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
             
         elif classifier_name == 'KNN':
-            K = range(10,500,25)
+            K = range(10,120,25)
             ls = range(10,100,22)
             grid = get_grid_knn(K, ls)
             
