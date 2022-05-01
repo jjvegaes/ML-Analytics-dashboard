@@ -37,17 +37,6 @@ def put_dataset():
         # Can be used wherever a "file-like" object is accepted:
         X = pd.read_csv(uploaded_file)
     else:
-        '''if options_dataset is not None:
-            if options_dataset == 'iris':
-                df = load_iris()
-            elif options_dataset == 'breast_cancer':
-                df = load_breast_cancer()
-            elif options_dataset == 'wine':
-                df = load_wine()
-            X = pd.DataFrame(df.data, columns=df.feature_names)
-            y = df.target
-            return X, y
-        else:'''
         X = pd.read_csv('./songs_full_data_processed.csv')
             
     X['explicit'] = X['explicit'].map({True:1, False:0}, na_action=None)
@@ -74,14 +63,10 @@ def cleaning_dataset(dataset, features_to_remove):
 
 
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
-    remove = ['main_genre'
+    remove = [
               #, 'song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song','speechiness'
-              ] #+ columns_to_remove
+            ]
     st.sidebar.header("Data cleaning")
-    #TODO: filtro para eliminar clases con solo una muestra, para crear un dataset distribuido
-    #dataset['main_genre'].replace(dataset['main_genre'].unique(), range(len(dataset['main_genre'].unique())), inplace=True)
-    #dataset = dataset.drop(dataset.groupby(by='main_genre').count() < 2, axis=0)
-    #dataset.dropna()
     
     try:
         columns_to_remove = st.sidebar.multiselect("Select unnecesary features", dataset.columns, remove)
@@ -96,7 +81,6 @@ def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
 def normalize(X):
     df_model = X.copy()
     scaler = MinMaxScaler()
-    #scaler = RobustScaler()
     features = [X.columns]
     for feature in features:
         try:
@@ -111,7 +95,7 @@ def add_params_classifier(cls_name):
     params = dict()
     st.sidebar.header("Model Hyperparameters")
     if cls_name == 'KNN':
-        K = st.sidebar.slider('K', 1, 700)
+        K = st.sidebar.slider('K', 1, 300)
         leaf_size = st.sidebar.slider('Leaf size', 1, 100)
         params['K'] = K
         params['leaf_size'] = leaf_size
@@ -125,11 +109,10 @@ def add_params_classifier(cls_name):
         params['C'] = C
         params['kernel'] = kernel
     elif cls_name == 'Random Forest':
-        max_depth = st.sidebar.slider('Max Depth', 2, 600)
-        n_estimators = st.sidebar.slider('Number of Estimators', 1, 600)
+        max_depth = st.sidebar.slider('Max Depth', 2, 200)
+        n_estimators = st.sidebar.slider('Number of Estimators', 1, 200)
         min_samples_split = st.sidebar.slider('Minimum samples split', 0.01, 1.00)
         min_samples_leaf = st.sidebar.slider('Minimum samples leaf', 1, 15)
-        #max_features = st.sidebar.slider('Maximum number of features', 1, 20)
         bootstrap = st.sidebar.checkbox('Bootstrap', value=True)
         params['max_depth'] = max_depth
         params['n_estimators'] = n_estimators
@@ -138,7 +121,7 @@ def add_params_classifier(cls_name):
         params['bootstrap'] = bootstrap
         #params['max_features'] = max_features
     elif cls_name == 'Decision Tree':
-        max_depth = st.sidebar.slider('Max Depth', 2, 600, step=2)
+        max_depth = st.sidebar.slider('Max Depth', 2, 200, step=2)
         min_samples_split = st.sidebar.slider('Minimum samples split', 2, 10)
         params['max_depth'] = max_depth
         params['min_samples_split'] = min_samples_split
@@ -198,7 +181,9 @@ def solve(df_model, y, classifier, classifier_name, TYPE_OF_PROBLEM):
     st.write("Accuracy ", acc)
     
     if classifier_name == 'Decision Tree':
+        fig = plt.figure()
         tree.plot_tree(classifier)
+        st.pyplot(fig)
     return X_train, X_test, y_train, y_test, y_pred
 
 
@@ -206,11 +191,8 @@ def get_grid_rf(n_estimators, max_depth, min_samples_split, min_samples_leaf, bo
     grid_rf = {
         'n_estimators': n_estimators,  
         'max_depth': max_depth,  
-        #'min_samples_split': min_samples_split, 
-        #'min_samples_leaf': min_samples_leaf,  
         'bootstrap': bootstrap, 
         'random_state': [42],
-        #'max_features': max_features
     }
     return grid_rf
 
@@ -248,28 +230,9 @@ def naive_accuracy(true, pred):
 
 
 def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_train, y, y_pred, TYPE_OF_PROBLEM):  
-    #TODO: NOT WORKING ROC CURVE
-    if 'ROC Curve' in metrics_list:
-        st.subheader("ROC Curve") 
-        fig, ax = plt.subplots()
-        metrics.plot_roc_curve(classifier, x_test, y_test, ax=ax)
-        
-        # Creating visualization with the readable labels
-        visualizer = metrics.roc_auc_score(y_test, y_pred, multi_class='ovo')
-                     
-        # Fitting to the training data first then scoring with the test data  
-        # st.write('Remember: Problem np.float64 dosnt have attribute fit')
-        st.dataframe(y_train)   
-        visualizer.fit(X_train, y_train)                               
-        visualizer.score(x_test, y_test)
-        visualizer.show()
-        st.write(fig)
     
     if 'Precision-Recall Curve' in metrics_list:
         try: # ONLY IN BINARY OR MULTICLASS CLASSIFICATION WE CAN APPLY THIS
-            # We dont need these matrices because we already plot them
-            #st.write("Precision: ", metrics.precision_score(y_test, y_pred, labels=y, average=None))
-            #st.write("Recall: ", metrics.recall_score(y_test, y_pred, labels=y, average=None))
             st.subheader("Precision-Recall Curve")
             fig, ax = plt.subplots()
             metrics.plot_precision_recall_curve(classifier, x_test, y_test, ax=ax)
@@ -280,23 +243,11 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
     if 'Correlation MAP' in metrics_list:
         with st.spinner("Correlation MAP..."):
             st.subheader('Correlation MAP: ')
-            #correlation map
             f,ax = plt.subplots(figsize=(12, 10))
             sns.heatmap(X.corr(), annot=True, linewidths=.5, fmt= '.1f', ax=ax)
             st.write(f)
 
-    if 'Confusion Matrix' in metrics_list:
-        try: # ValueError: Classification metrics can't handle a mix of multiclass and continuous targets
-            with st.spinner("Confusion matrix..."): # We can use this for example with the percent of change and try to classify if the day will be profit or loss
-                f,ax = plt.subplots(figsize=(10, 5))
-                cm = confusion_matrix(y_test,classifier.predict(x_test))
-                labels = ['True Neg','False Pos','False Neg','True Pos']
-                labels = np.asarray(labels).reshape(2,2)
-                sns.heatmap(cm,annot=labels, fmt='', ax=ax, cmap='Blues')
-                st.subheader('Confusion matrix: ')
-                st.write(f)
-        except:
-            pass
+
 
     if 'Best Features' in metrics_list:
         with st.spinner("Finding best features..."):
@@ -308,14 +259,12 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
                 select_feature = SelectKBest(f_regression, k=3).fit(X_train, y_train)
                 
             scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
-            scores.columns = ['cat','score']
-            scores = scores.sort_values('score',ascending=False)
+            scores.columns = ['Score','Feature']
+            scores = scores.sort_values('Score',ascending=False)
             fig, ax = plt.subplots(figsize=(14, 10))
-            sns.barplot(x='score',y='cat',data=scores, palette='seismic', ax=ax)
+            sns.barplot(x='Score',y='Feature',data=scores, palette='seismic', ax=ax)
             plt.show()
             st.write(fig)
-            #df.loc[:, df.columns != 'b']
-            #df.drop('b', axis=1)
             try:
                 importances = classifier.feature_importances_
                 sorted_index = np.argsort(importances)[::-1]
