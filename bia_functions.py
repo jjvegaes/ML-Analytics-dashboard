@@ -316,16 +316,20 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
             st.write(fig)
             #df.loc[:, df.columns != 'b']
             #df.drop('b', axis=1)
-            importances = classifier.feature_importances_
-            sorted_index = np.argsort(importances)[::-1]
-            x_values = range(len(importances))
-            labels = np.array(X.columns)[sorted_index]
-            fig, ax = plt.subplots(figsize=(14, 10))
-        
-            plt.bar(x_values, importances[sorted_index], tick_label=labels)
-            plt.xticks(rotation=90)
-            plt.show()
-            st.write(fig)
+            try:
+                importances = classifier.feature_importances_
+                sorted_index = np.argsort(importances)[::-1]
+                x_values = range(len(importances))
+                labels = np.array(X.columns)[sorted_index]
+                fig, ax = plt.subplots(figsize=(14, 10))
+            
+                plt.bar(x_values, importances[sorted_index], tick_label=labels)
+                plt.xticks(rotation=90)
+                plt.show()
+                st.write(fig)
+            except:
+                pass
+            
             
             
     if 'Variance Ratio' in metrics_list:

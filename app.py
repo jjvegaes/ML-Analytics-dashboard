@@ -63,6 +63,9 @@ with st.spinner("Feature engineering..."):
     st.header('FEATURE ENGINEERING')
     st.subheader('The dataset: ')
     st.dataframe(X)
+    st.subheader('The dataset normalized: ')
+    st.dataframe(X_norm)
+    
     st.subheader('Statistics about the dataset: ')
     st.text(X.describe())
     st.write('MAE:', metrics.mean_absolute_error(y_test, y_pred))
