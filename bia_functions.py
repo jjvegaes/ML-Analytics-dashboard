@@ -74,7 +74,9 @@ def cleaning_dataset(dataset, features_to_remove):
 
 
 def user_input_features(dataset, TYPE_OF_PROBLEM, CLASSIFIERS):
-    remove = ['main_genre', 'song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song','speechiness'] #+ columns_to_remove
+    remove = ['main_genre'
+              #, 'song_id','album_id','track_number','release_date','release_date_precision','song_name','artist_id','time_signature', 'mode', 'key', 'liveness', 'valence', 'tempo', 'instrumentalness','loudness','energy','duration_ms','song_type', 'danceability', 'acousticness','popularity_song','speechiness'
+              ] #+ columns_to_remove
     st.sidebar.header("Data cleaning")
     #TODO: filtro para eliminar clases con solo una muestra, para crear un dataset distribuido
     #dataset['main_genre'].replace(dataset['main_genre'].unique(), range(len(dataset['main_genre'].unique())), inplace=True)
