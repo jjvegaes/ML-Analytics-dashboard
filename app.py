@@ -116,7 +116,8 @@ if hyper_tuning:
             rscv_fit = rscv.fit(X_train, y_train)
             best_parameters = rscv_fit.best_params_
             print(best_parameters)
-            
+            test_accuracy=accuracy_score(y_test,y_pred)*100
+            st.write(f"Accuracy in testing dataset with tuning: {test_accuracy:.2f}%")
             
         elif classifier_name == 'Decision Tree':
             max_depth = range(10,120,20) 
@@ -132,6 +133,8 @@ if hyper_tuning:
                 test_scores.append(classifier.score(X_test, y_test))
             best_index = np.argmax(test_scores)
             st.write(test_scores[best_index], ParameterGrid(grid)[best_index])
+            test_accuracy=accuracy_score(y_test,y_pred)*100
+            st.write(f"Accuracy in testing dataset with tuning: {test_accuracy:.2f}%")
             
         elif classifier_name == 'KNN':
             K = range(10,120,25)
@@ -145,7 +148,7 @@ if hyper_tuning:
             st.write(f"Accuracy with tuning: {accuracy:.2f}%")
             knn = KNeighborsClassifier(n_neighbors=grid_search.best_params_['n_neighbors'], leaf_size=grid_search.best_params_['leaf_size'])
             knn.fit(X, y)
-            y_test_hat=knn.predict(X_test) 
+            y_test_hat=classifier.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 
@@ -168,7 +171,7 @@ if hyper_tuning:
             st.write(f"Accuracy with tuning: {accuracy:.2f}%")
             svm = SVC(C=grid_search.best_params_['C'], kernel=grid_search.best_params_['kernel'], degree=grid_search.best_params_['degree'])
             svm.fit(X, y)
-            y_test_hat=svm.predict(X_test) 
+            y_test_hat=classifier.predict(X_test) 
 
             test_accuracy=accuracy_score(y_test,y_test_hat)*100
 

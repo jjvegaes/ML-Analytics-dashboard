@@ -5,7 +5,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.feature_selection import SelectKBest, f_classif, f_regression
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -168,6 +168,8 @@ def solve(df_model, y, classifier, classifier_name, TYPE_OF_PROBLEM):
     st.success(f"""
             # Classifier: {classifier_name}  #
             # Accuracy: {acc}""")
+    test_accuracy=accuracy_score(y_test,y_pred)*100
+    st.write(f"Accuracy in testing dataset: {test_accuracy:.2f}%")
     
     pca = PCA(2)
     X_projected = pca.fit_transform(df_model)
