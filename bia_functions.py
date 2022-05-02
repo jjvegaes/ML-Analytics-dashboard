@@ -182,10 +182,10 @@ def solve(df_model, y, classifier, classifier_name, TYPE_OF_PROBLEM):
     st.pyplot(fig)
     st.write("Accuracy ", acc)
     
-    if classifier_name == 'Decision Tree':
+    '''if classifier_name == 'Decision Tree':
         fig = plt.figure()
         tree.plot_tree(classifier)
-        st.pyplot(fig)
+        st.pyplot(fig)'''
     return X_train, X_test, y_train, y_test, y_pred
 
 
@@ -261,7 +261,7 @@ def plotting_metrics(metrics_list, classifier, x_test, y_test, X, X_train, y_tra
                 select_feature = SelectKBest(f_regression, k=3).fit(X_train, y_train)
                 
             scores = pd.concat([pd.DataFrame(data=X_train.columns),pd.DataFrame(data=select_feature.scores_[:])],axis=1)
-            scores.columns = ['Score','Feature']
+            scores.columns = ['Feature','Score']
             scores = scores.sort_values('Score',ascending=False)
             fig, ax = plt.subplots(figsize=(14, 10))
             sns.barplot(x='Score',y='Feature',data=scores, palette='seismic', ax=ax)
